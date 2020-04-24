@@ -1,0 +1,31 @@
+{
+  "name": "twitter-rnn",
+  "version": "1.0.0",
+  "description": "💬 Learning to compose Tweets using recurrent neural networks.",
+  "main": "src/char_net.js",
+  "type": "module",
+  "scripts": {
+    "charRNN:train": "node .",
+    "wordRNN:train": "node .",
+    "charRNN:test": "node .",
+    "wordRNN:test": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shmishtopher/twitter-RNN.git"
+  },
+  "keywords": [
+    "RNN",
+    "Twitter",
+    "Tweets"
+  ],
+  "author": "Shmish <c.schmitt@my.ccsu.edu>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shmishtopher/twitter-RNN/issues"
+  },
+  "homepage": "https://github.com/shmishtopher/twitter-RNN#readme",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^1.7.3"
+  }
+}
