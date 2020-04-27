@@ -15,8 +15,8 @@ import { default as tf } from '@tensorflow/tfjs-node'
  * If the `headers` field is provided then the generator
  * will be index by key name instead.
  * 
- * @param {string} file - The location of the file to parse
- * @param {string[]} headers - The headers of the csv file
+ * @param {String} file - The location of the file to parse
+ * @param {String[]} headers - The headers of the csv file
  */
 async function* csvParse(file, headers) {
   const fileStream = createReadStream(file)
@@ -39,7 +39,7 @@ async function* csvParse(file, headers) {
 
 
 /**
- * Zip takes as argument two arrays and zips them
+ * zip takes as argument two arrays and zips them
  * together element-wise
  * 
  * @param {Array<any>} lhs - left hand array
@@ -58,3 +58,54 @@ function* zip(lhs, rhs) {
     rightElement = rightIterator.next()
   }
 }
+
+
+/**
+ * roll provides frames for rolling window calculations
+ * 
+ * @param {Iterable<any>} iteratble - the iterable to roll over
+ * @param {Number} size - the size of the rolling window
+ */
+function* roll(iteratble, size) {
+  const buffer = []
+
+  for (const element of iteratble) {
+    buffer.push(element)
+
+    if (buffer.length === size) {
+      yield buffer
+      buffer.shift()
+    }
+  }
+}
+
+
+// Constants for the datafile
+const dataFile = 'data/tweets.csv'
+const headers = ['label', 'id', 'date', 'query', 'user', 'tweet']
+
+
+/**
+ * dataset is a generator that yields tensor pairs by
+ * rolling over tweets from the provided dataset.
+ */
+async function* dataset() {
+  for await (const { tweet } of csvParse(dataFile, headers)) {
+    for (const substring of roll(tweet, 21)) {
+      const input = substring.slice(0, 20)
+      const target = [substring[20]]
+
+      yield {
+        xs: tf.oneHot(input.map(x => x.charCodeAt()), 256),
+        ys: tf.oneHot(target.map(x => x.charCodeAt()), 256),
+      }
+    }
+  }
+}
+
+
+// Export dataset
+export default tf.data.generator(dataset)
+  .take(1_000_000)
+  .shuffle(512)
+  .batch(512)

@@ -5,7 +5,7 @@
   "main": "src/char_net.js",
   "type": "module",
   "scripts": {
-    "charRNN:train": "node .",
+    "charRNN:train": "node src/train.js",
     "wordRNN:train": "node .",
     "charRNN:test": "node .",
     "wordRNN:test": "node ."
