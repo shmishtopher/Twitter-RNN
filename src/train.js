@@ -11,7 +11,7 @@ model.fitDataset(dataset, {
   verbos: 2,
   callbacks: {
     onEpochEnd(epoch) {
-      model.save(`file://saves/${epoch}.json`)
+      model.save(`file://saves/${epoch}`)
     }
   },
 })
