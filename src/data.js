@@ -80,6 +80,24 @@ function* roll(iteratble, size) {
 }
 
 
+/**
+ * An "all" implementation for aritrary iterables.
+ * Returns true if every element of the iterable
+ * returns true for the provided predicate.
+ * 
+ * @param {Iterable<any>} iterable 
+ * @param {Function} predicate 
+ */
+function every(iterable, predicate) {
+  for (const element of iterable) {
+    if (predicate(element) !== true) {
+      return false
+    }
+  }
+  return true
+}
+
+
 // Constants for the datafile
 const dataFile = 'data/tweets.csv'
 const headers = ['label', 'id', 'date', 'query', 'user', 'tweet']
@@ -91,13 +109,13 @@ const headers = ['label', 'id', 'date', 'query', 'user', 'tweet']
  */
 async function* dataset() {
   for await (const { tweet } of csvParse(dataFile, headers)) {
-    for (const substring of roll(tweet, 21)) {
-      const input = substring.slice(0, 20)
-      const target = [substring[20]]
+    for (const substring of roll(tweet, 61)) {
+      const input = substring.slice(0, 60)
+      const target = substring[60]
 
       yield {
-        xs: tf.oneHot(input.map(x => x.charCodeAt()), 256),
-        ys: tf.oneHot(target.map(x => x.charCodeAt()), 256),
+        xs: tf.oneHot(Array.from(input, x => x.charCodeAt()), 256),
+        ys: tf.oneHot([target.charCodeAt()], 256),
       }
     }
   }
@@ -106,6 +124,5 @@ async function* dataset() {
 
 // Export dataset
 export default tf.data.generator(dataset)
-  .take(1_000_000)
-  .shuffle(512)
   .batch(512)
+  .take(1000)

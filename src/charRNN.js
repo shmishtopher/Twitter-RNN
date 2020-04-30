@@ -11,9 +11,10 @@ export function createRNN() {
   const model = tf.sequential()
 
   model.add(tf.layers.gru({
-    inputShape: [20, 256],
+    batchInputShape: [512, 60, 256],
     recurrentInitializer: 'glorotNormal',
-    units: 256,
+    units: 1024,
+    stateful: true,
   }))
   
   model.add(tf.layers.dense({
@@ -21,14 +22,14 @@ export function createRNN() {
     activation: 'relu'
   }))
   
-  model.add(tf.layers.dropout({ rate: 0.5 }))
+  model.add(tf.layers.dropout({ rate: 0.1 }))
   
   model.add(tf.layers.dense({
     units: 512,
     activation: 'relu'
   }))
   
-  model.add(tf.layers.dropout({ rate: 0.5 }))
+  model.add(tf.layers.dropout({ rate: 0.1 }))
   
   model.add(tf.layers.dense({
     units: 512,

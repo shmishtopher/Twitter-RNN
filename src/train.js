@@ -1,4 +1,3 @@
-import { default as tf } from '@tensorflow/tfjs-node'
 import { default as dataset } from './data.js'
 import { createRNN } from './charRNN.js'
 
@@ -10,8 +9,7 @@ model.fitDataset(dataset, {
   epochs: 20,
   verbos: 2,
   callbacks: {
-    onEpochEnd(epoch) {
-      model.save(`file://saves/${epoch}`)
-    }
-  },
+    onBatchEnd(batch) { console.log(`${batch}/1000`) },
+    onEpochEnd(epoch) { model.save(`file://saves/${epoch}`) },
+  }
 })
