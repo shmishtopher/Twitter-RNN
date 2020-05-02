@@ -1,4 +1,4 @@
-import { default as tf } from '@tensorflow/tfjs-node'
+import { default as tf } from '@tensorflow/tfjs-node-gpu'
 
 
 /**

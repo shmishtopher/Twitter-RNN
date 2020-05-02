@@ -7,7 +7,7 @@
 
 import { createReadStream } from 'fs'
 import { createInterface } from 'readline'
-import { default as tf } from '@tensorflow/tfjs-node'
+import { default as tf } from '@tensorflow/tfjs-node-gpu'
 
 
 /**
@@ -123,6 +123,5 @@ async function* dataset() {
 
 
 // Export dataset
-export default tf.data.generator(dataset)
-  .batch(512)
-  .take(1000)
+export default tf.data.generator(dataset).batch(512)
+

@@ -5,10 +5,9 @@
   "main": "src/char_net.js",
   "type": "module",
   "scripts": {
-    "charRNN:train": "node src/train.js",
-    "wordRNN:train": "node .",
-    "charRNN:test": "node .",
-    "wordRNN:test": "node ."
+    "RNN:train": "node src/train.js",
+    "RNN:test": "node src/predict.js --beam-width 3 --beam-depth 2 --seed \"@LOLTrish hey  long time no see! Yes.. Rains a bit, only a bit LOL, I'm fine tha\"",
+    "RNN:redict": "node src/predict.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +25,6 @@
   },
   "homepage": "https://github.com/shmishtopher/twitter-RNN#readme",
   "dependencies": {
-    "@tensorflow/tfjs-node": "^1.7.3"
+    "@tensorflow/tfjs-node-gpu": "^1.7.3"
   }
 }

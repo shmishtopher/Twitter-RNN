@@ -1,56 +1,56 @@
-import { default as tf } from '@tensorflow/tfjs-node'
+import { default as tf } from '@tensorflow/tfjs-node-gpu'
+import { argv } from 'process'
 
 
-const model = tf.loadLayersModel('file://saves/2/model.json')
-const tweet = "@switchfoot http://twitpic.com/2y1zl - Awwww, You shoulda got David Carr of Third Day to do it.".slice(0, 60)
+const beamWidth = argv.find((_, i, args) => args[i - 1] === '--beam-width')
+const beamDepth = argv.find((_, i, args) => args[i - 1] === '--beam-depth')
+const seed = argv.find((_, i, args) => args[i - 1] === '--seed')
 
 
-model.then(model => {
-  const predictor = tf.sequential()
-
-  predictor.add(tf.layers.gru({
-    inputShape: [60, 256],
-    recurrentInitializer: 'glorotNormal',
-    units: 1024,
-  }))
-
-  predictor.add(tf.layers.dense({
-    units: 512,
-    activation: 'relu'
-  }))
-  
-  predictor.add(tf.layers.dropout({ rate: 0.1 }))
-  
-  predictor.add(tf.layers.dense({
-    units: 512,
-    activation: 'relu'
-  }))
-  
-  predictor.add(tf.layers.dropout({ rate: 0.1 }))
-  
-  predictor.add(tf.layers.dense({
-    units: 512,
-    activation: 'relu'
-  }))
-  
-  predictor.add(tf.layers.dense({
-    units: 256,
-    activation: 'softmax',
-  }))
-
-  predictor.compile({
-    optimizer: 'adam',
-    loss: 'categoricalCrossentropy',
-    metrics: ['accuracy'],
-  })
-
-  predictor.summary()
-  predictor.setWeights(model.getWeights())
-
-  const tensor = tf.oneHot(Array.from(tweet, x => x.charCodeAt()), 256)
-  const prediction = predictor.predict(tensor.reshape([1, tweet.length, 256]))
-  console.log(tweet)
-
-  prediction.squeeze().argMax().print()
-  tf.multinomial(prediction.squeeze(), 5).print()
+const model = tf.loadLayersModel('file://saves/model.json').then(async model => {
+  console.log(await beamSearch({text: seed, prob: 0}, beamWidth, beamDepth, model))
 })
+
+
+async function beamSearch(seed, width, depth, model) {
+  if (depth === 0) {
+    return seed
+  }
+  else {
+    const tensor = tf.oneHot(Array.from(seed.text.slice(-60), x => x.charCodeAt()), 256)
+    const prediction = tf.tidy(() => model.predict(tensor.reshape([1, 60, 256])).squeeze())
+    const { values, indices } = tf.topk(prediction, width)
+    
+    const zipped = Promise.all([indices.array(), values.array()]).then(zip)
+    const branches = []
+    
+    for (const [ascii, prob] of await zipped) {
+      branches.push({
+        text: seed.text + String.fromCharCode(ascii),
+        prob: seed.prob - Math.log(prob),
+      })
+    }
+    
+    tensor.dispose()
+    prediction.dispose()
+    values.dispose()
+    indices.dispose()
+
+    return Promise.all(branches.map(seed => beamSearch(seed, width, depth - 1, model))).then(x => x.flat())
+  }
+}
+
+
+function* zip([lhs, rhs]) {
+  const leftIterator = lhs.values()
+  const rightIterator = rhs.values()
+  
+  let leftElement = leftIterator.next()
+  let rightElement = rightIterator.next()
+  
+  while (!leftElement.done && !rightElement.done) {
+    yield [leftElement.value, rightElement.value]
+    leftElement = leftIterator.next()
+    rightElement = rightIterator.next()
+  }
+}
