@@ -1,3 +1,10 @@
+/**
+ * @author  Shmish - c.schmitt@my.ccsu.edu
+ * @version 1.0.0 - 4/24/2020
+ * @license MIT - (c) Christopher K. Schmitt
+ */
+
+
 import { default as tf } from '@tensorflow/tfjs-node-gpu'
 
 

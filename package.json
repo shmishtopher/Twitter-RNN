@@ -7,7 +7,7 @@
   "scripts": {
     "RNN:train": "node src/train.js",
     "RNN:test": "node src/predict.js --beam-width 3 --beam-depth 2 --seed \"@LOLTrish hey  long time no see! Yes.. Rains a bit, only a bit LOL, I'm fine tha\"",
-    "RNN:redict": "node src/predict.js"
+    "RNN:predict": "node src/predict.js"
   },
   "repository": {
     "type": "git",

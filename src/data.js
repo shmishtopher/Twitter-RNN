@@ -123,5 +123,7 @@ async function* dataset() {
 
 
 // Export dataset
-export default tf.data.generator(dataset).batch(512)
+export default tf.data.generator(dataset)
+  .take(2000)
+  .batch(512)
 
